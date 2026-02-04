@@ -1,0 +1,37 @@
+# Environment & Credentials
+.env
+.env.*
+credentials.json
+token.json
+*.pem
+*.key
+
+# Databases (contain local data)
+data/*.db
+
+# Scratch work
+.tmp/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code local settings
+.claude/
+
+# Logs (optional - uncomment if you want to track logs)
+# memory/logs/
