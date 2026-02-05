@@ -1,0 +1,45 @@
+# LLM Configuration
+# Model parameters and defaults for each agent
+
+models:
+  codex:
+    provider: openai
+    model: gpt-4o
+    temperature: 0.3  # Lower for code accuracy
+    description: "Code generation and review specialist"
+
+  gemini:
+    provider: google
+    model: gemini-2.0-flash
+    temperature: 0.7
+    description: "Reasoning, synthesis, and report generation"
+
+  grok:
+    provider: xai
+    model: grok-3
+    temperature: 0.8  # Higher for creative/sentiment tasks
+    description: "Social sentiment and contrarian analysis"
+
+  qwen:
+    provider: local
+    model: default_model
+    base_url: http://localhost:8080/v1
+    temperature: 0.7
+    description: "Local workhorse for drafts and formatting"
+
+# Default model for quick tasks
+default_model: qwen
+
+# Cost optimization mode
+# conservative: prefer local/free when quality is acceptable
+# performance: use best model for task regardless of cost
+# balanced: mix based on task complexity
+cost_mode: conservative
+
+# Retry settings
+retry:
+  max_attempts: 3
+  backoff_seconds: 2
+
+# Timeout in seconds
+timeout: 120

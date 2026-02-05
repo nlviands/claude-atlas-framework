@@ -1,0 +1,90 @@
+# Pipeline Definitions
+# Defines agent chains for different task types
+# Claude orchestrates and reviews all pipeline outputs
+
+pipelines:
+  code_generation:
+    description: "Generate and review code"
+    stages:
+      - agent: qwen
+        role: draft
+        instruction: "Generate initial code implementation"
+      - agent: codex
+        role: review
+        instruction: "Review code for bugs, security issues, and improvements"
+
+  code_review:
+    description: "Review existing code"
+    stages:
+      - agent: codex
+        role: review
+        instruction: "Analyze code quality, security, and suggest improvements"
+
+  investment_research:
+    description: "Research a company/asset for investment"
+    stages:
+      - agent: grok
+        role: sentiment
+        instruction: "Analyze social media sentiment and public perception"
+      - agent: qwen
+        role: data
+        instruction: "Gather and structure financial data"
+      - agent: gemini
+        role: synthesis
+        instruction: "Synthesize findings into cohesive investment report"
+
+  trading_signal:
+    description: "Generate trading signal with analysis"
+    stages:
+      - agent: grok
+        role: sentiment
+        instruction: "Pulse check on social/news sentiment"
+      - agent: gemini
+        role: analysis
+        instruction: "Risk analysis and signal validation"
+      - agent: qwen
+        role: format
+        instruction: "Format signal for execution"
+
+  analysis:
+    description: "General analysis task"
+    stages:
+      - agent: qwen
+        role: draft
+        instruction: "Initial analysis and data gathering"
+      - agent: gemini
+        role: deep_analysis
+        instruction: "Deeper reasoning and insight extraction"
+
+  creative:
+    description: "Creative content generation"
+    stages:
+      - agent: grok
+        role: ideation
+        instruction: "Generate creative ideas and unconventional angles"
+      - agent: gemini
+        role: structure
+        instruction: "Structure and refine into coherent output"
+
+  quick_task:
+    description: "Simple tasks - local only, no handoff"
+    stages:
+      - agent: qwen
+        role: execute
+        instruction: "Complete the task directly"
+
+# Fallback chain when a model fails
+fallback_order:
+  - qwen      # Try local first (free)
+  - gemini    # Then Gemini
+  - codex     # Then Codex
+  - grok      # Finally Grok
+
+# Claude's review behavior
+review:
+  # Always review pipeline output before returning to user
+  always_review: true
+  # Can push back and request refinement
+  allow_pushback: true
+  # Max refinement iterations before escalating to user
+  max_iterations: 3
