@@ -290,6 +290,61 @@ python tools/memory/memory_read.py --format markdown
 
 ---
 
+### **9. Autonomous Work Protocol**
+
+For complex, multi-step tasks that span time or require significant implementation:
+
+**Explore Before Acting**
+- Understand the codebase before suggesting changes
+- Use `Glob`, `Grep`, `Read` or the Explore agent to map relevant files
+- Don't assume — verify structure, patterns, and dependencies first
+
+**Plan Before Implementing**
+- For non-trivial tasks, create a plan before writing code
+- Use `EnterPlanMode` for structured planning with user approval
+- Break large objectives into discrete sub-tasks with clear success criteria
+
+**Track State Persistently**
+- For multi-session projects, maintain `tasks.md` in the project root:
+
+```markdown
+# Active Tasks
+
+## In Progress
+- [ ] Task description — success criteria
+  - [x] Sub-task completed
+  - [ ] Sub-task pending
+
+## Blocked
+- [ ] Task — blocked by: [reason]
+
+## Completed
+- [x] Task — completed YYYY-MM-DD
+```
+
+- Update after every significant milestone
+- This survives across sessions (unlike in-memory task tracking)
+
+**Git Discipline**
+- For non-trivial work, create a feature branch: `git checkout -b feature/task-name`
+- Commit incremental progress with clear messages
+- Only merge to main when task is verified complete
+- Don't leave uncommitted work at session end
+
+**Test Before Done**
+- A task is not complete until verified working
+- Run existing tests after changes: check nothing broke
+- For new functionality, write a test or manually verify
+- "It should work" is not verification — run it
+
+**When Blocked**
+- Identify the specific dependency or missing information
+- Document the blocker in `tasks.md`
+- Ask for clarification rather than guessing
+- Don't proceed with assumptions on critical paths
+
+---
+
 # **The Continuous Improvement Loop**
 
 Every failure strengthens the system:
