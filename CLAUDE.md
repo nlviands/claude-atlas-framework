@@ -1,5 +1,26 @@
 # **System Handbook: How This Architecture Operates**
 
+## Quick Start
+
+```bash
+# Verify environment
+uv --version  # Requires UV package manager
+python --version  # Python 3.10+
+
+# Check agent health
+cd tools/llm && uv run python orchestrator.py health
+
+# Test a simple query
+uv run python orchestrator.py query gemini "Hello, are you working?"
+```
+
+**Key files:**
+- `projects.md` — Active projects and task tracking
+- `memory/MEMORY.md` — Persistent facts and preferences
+- `tools/manifest.md` — Available tools index
+
+---
+
 ## **The GOTCHA Framework**
 
 This system uses the **GOTCHA Framework** — a 6-layer architecture for agentic systems:
@@ -294,6 +315,10 @@ python tools/memory/memory_read.py --format markdown
 
 For complex, multi-step tasks that span time or require significant implementation:
 
+**Check Active Projects First**
+- Read `projects.md` at session start for active projects and their tasks
+- This is the source of truth for what's in progress
+
 **Explore Before Acting**
 - Understand the codebase before suggesting changes
 - Use `Glob`, `Grep`, `Read` or the Explore agent to map relevant files
@@ -358,6 +383,13 @@ Every failure strengthens the system:
 ---
 
 # **File Structure**
+
+## Environment Requirements
+
+- Python 3.10+
+- UV package manager (`curl -LsSf https://astral.sh/uv/install.sh | sh`)
+- API keys in `.env`: `OPENAI_API_KEY`, `GOOGLE_API_KEY`, `XAI_API_KEY`
+- For local Qwen: MLX server on `127.0.0.1:8080`
 
 **Where Things Live:**
 
