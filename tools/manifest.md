@@ -2,32 +2,35 @@
 
 > Master list of all available tools. Check here before writing new scripts.
 
+## Architecture (Simplified)
+
+Claude Opus 4.6 is the orchestrator, synthesizer, and reasoner. External tools provide
+data and deterministic calculations. Grok is the only external LLM (optional, for X sentiment).
+
+---
+
 ## LLM Tools (`tools/llm/`)
 
 | Tool | Description |
 |------|-------------|
-| `orchestrator.py` | Pipeline orchestrator - routes tasks through agent chains |
+| `orchestrator.py` | Queries Grok for social sentiment when needed |
 | `base.py` | Base classes and interfaces for LLM clients |
-| `clients/codex_client.py` | OpenAI/Codex client for code generation and review |
-| `clients/gemini_client.py` | Google Gemini client for reasoning and synthesis |
-| `clients/grok_client.py` | xAI Grok client for social sentiment and creative tasks |
-| `clients/qwen_local.py` | Local Qwen client via MLX for drafts and formatting |
+| `clients/grok_client.py` | xAI Grok client — X/social sentiment (only external LLM still active) |
 
-### Orchestrator Commands
+### Usage
 
 ```bash
-# Check which agents are available
-uv run python orchestrator.py health
+# Check if Grok is available
+cd tools/llm && uv run python orchestrator.py health
 
-# List available pipelines
-uv run python orchestrator.py list
-
-# Run a pipeline
-uv run python orchestrator.py run <pipeline_name> "<task>"
-
-# Query a single agent
-uv run python orchestrator.py query <agent> "<prompt>"
+# Query Grok for sentiment
+uv run python orchestrator.py query grok "Social sentiment on TSLA"
 ```
+
+### Retired Clients (kept for reference, not actively used)
+- `clients/codex_client.py` — OpenAI/GPT-4o (replaced by Claude Opus 4.6)
+- `clients/gemini_client.py` — Google Gemini (replaced by Claude Opus 4.6)
+- `clients/qwen_local.py` — Local Qwen via MLX (replaced by Claude Opus 4.6)
 
 ---
 
@@ -35,7 +38,7 @@ uv run python orchestrator.py query <agent> "<prompt>"
 
 | Tool | Description |
 |------|-------------|
-| `market_data.py` | Market data aggregator - bundles price, news, options for pipelines |
+| `market_data.py` | Market data aggregator — bundles price, news, options for analysis |
 | `technical_indicators.py` | Calculates RSI, MACD, Bollinger Bands, MAs from price data |
 
 ---
@@ -50,7 +53,59 @@ uv run python orchestrator.py query <agent> "<prompt>"
 | `embed_memory.py` | Generate embeddings for memory entries |
 | `semantic_search.py` | Search memory using semantic similarity |
 | `hybrid_search.py` | Combined keyword + semantic search (recommended) |
+| `conversation_logger.py` | Auto-logs user prompts and assistant responses via Claude Code hooks |
 
 ---
 
-*Update this manifest when adding new tools.*
+## Claude Code Subagents (`.claude/agents/`)
+
+| Agent | Description |
+|-------|-------------|
+| `market-researcher` | Stock research — pulls data, runs TA, delivers concise reports |
+
+---
+
+## Knowledge Base (`tools/kb/`)
+
+| Tool | Description |
+|------|-------------|
+| `kb_schema.py` | Creates/migrates the vector knowledge base schema (sqlite-vec + FTS5) |
+| `kb_ingest.py` | Ingests all data sources into KB — memories, trades, Discord, transcripts, etc. |
+| `kb_search.py` | Hybrid search (vector + keyword) across all ingested knowledge |
+| `kb_utils.py` | Shared utilities — embedding, chunking, DB connections |
+
+### Usage
+
+```bash
+PYTHON=/Users/nl/projects/chief_of_staff/.venv/bin/python
+
+# Create/update schema
+$PYTHON tools/kb/kb_schema.py
+
+# Ingest all sources
+$PYTHON tools/kb/kb_ingest.py all
+
+# Ingest specific source
+$PYTHON tools/kb/kb_ingest.py discord path/to/export.json
+
+# Search
+$PYTHON tools/kb/kb_search.py "TROW earnings"
+$PYTHON tools/kb/kb_search.py "Hans LITE" --source discord
+$PYTHON tools/kb/kb_search.py "options strategy" --ticker TROW --limit 20
+$PYTHON tools/kb/kb_search.py "coolant leak" --mode keyword
+```
+
+**Database:** `/Users/nl/projects/chief_of_staff/knowledge.db` (19MB, 7,254 vectors)
+
+---
+
+## Discord Tools (`tools/discord/`)
+
+| Tool | Description |
+|------|-------------|
+| `export_channel.py` | Export messages from a Discord channel using user token |
+| `daily_pull.py` | Automated daily pull of Hans's key channels (scheduled by Chief at 8:45 AM) |
+
+---
+
+*Update this manifest when adding new tools or subagents.*
