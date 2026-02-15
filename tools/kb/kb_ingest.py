@@ -394,6 +394,92 @@ def ingest_transcripts(conn):
     return total
 
 
+def ingest_reports(conn):
+    """Ingest report markdown files from Chief's reports directory."""
+    print("Ingesting reports...")
+
+    reports_dir = Path("/Users/nl/projects/chief_of_staff/reports")
+    if not reports_dir.exists():
+        print("  No reports directory found.")
+        return 0
+
+    files = sorted(reports_dir.glob("*.md"))
+    if not files:
+        print("  No .md reports found.")
+        return 0
+
+    documents = []
+    for f in files:
+        text = f.read_text()
+        if not text.strip():
+            continue
+
+        # Extract title from first heading or filename
+        title = f.stem
+        for line in text.split('\n'):
+            line = line.strip()
+            if line.startswith('# '):
+                title = line[2:].strip()
+                break
+
+        # Extract date from filename if present (e.g., SNPS_Analysis_2026-02-03.md)
+        import re
+        date_match = re.search(r'(\d{4}-\d{2}-\d{2})', f.name)
+        created_at = date_match.group(1) if date_match else None
+
+        # Chunk long reports into ~1500 char sections
+        chunks = _chunk_report(text, max_chars=1500)
+
+        for i, chunk in enumerate(chunks):
+            documents.append({
+                'source': 'report',
+                'source_id': f"{f.stem}_{i}",
+                'title': f"{title} (part {i+1})" if len(chunks) > 1 else title,
+                'content': chunk[:2000],
+                'metadata': {'file': f.name, 'part': i, 'total_parts': len(chunks)},
+                'created_at': created_at,
+            })
+
+    count = _insert_and_embed(conn, documents)
+    print(f"  Reports: {count} new / {len(documents)} total chunks from {len(files)} files")
+    return count
+
+
+def _chunk_report(text: str, max_chars: int = 1500) -> list[str]:
+    """Split a report into chunks, preferring section breaks."""
+    # Try splitting on markdown headers
+    import re
+    sections = re.split(r'\n(?=#{1,3} )', text)
+
+    chunks = []
+    current = ""
+
+    for section in sections:
+        if len(current) + len(section) < max_chars:
+            current += section
+        else:
+            if current.strip():
+                chunks.append(current.strip())
+            # If a single section is too long, split it further
+            if len(section) > max_chars:
+                words = section.split()
+                current = ""
+                for word in words:
+                    if len(current) + len(word) + 1 > max_chars:
+                        if current.strip():
+                            chunks.append(current.strip())
+                        current = word
+                    else:
+                        current = current + " " + word if current else word
+            else:
+                current = section
+
+    if current.strip():
+        chunks.append(current.strip())
+
+    return chunks if chunks else [text[:max_chars]]
+
+
 def ingest_all(conn):
     """Run all ingestion sources."""
     total = 0
@@ -401,6 +487,7 @@ def ingest_all(conn):
     total += ingest_trades(conn)
     total += ingest_lessons(conn)
     total += ingest_research(conn)
+    total += ingest_reports(conn)
     total += ingest_discord(conn)
     total += ingest_transcripts(conn)
     total += ingest_conversations(conn)
@@ -417,7 +504,7 @@ def main():
     parser = argparse.ArgumentParser(description="Knowledge Base Ingestion")
     parser.add_argument("source", nargs="?", default="all",
                         choices=["all", "memories", "trades", "lessons", "research",
-                                 "discord", "transcripts", "conversations"],
+                                 "reports", "discord", "transcripts", "conversations"],
                         help="Source to ingest (default: all)")
     parser.add_argument("file", nargs="?", help="Specific file (for discord)")
     args = parser.parse_args()
@@ -434,6 +521,8 @@ def main():
         ingest_lessons(conn)
     elif args.source == "research":
         ingest_research(conn)
+    elif args.source == "reports":
+        ingest_reports(conn)
     elif args.source == "discord":
         filepath = Path(args.file) if args.file else None
         ingest_discord(conn, filepath)
