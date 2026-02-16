@@ -55,3 +55,4 @@ docs/Health/
 
 # Discord state files
 tools/discord/.needs_analysis
+tools/discord/.pull_state.json
