@@ -3,7 +3,7 @@
 
 tts:
   provider: google
-  voice: en-US-Studio-O    # Male, natural. Alternatives: en-US-Studio-Q (male deeper), en-US-Neural2-D
+  voice: en-US-Neural2-D   # Male, natural. Alternatives: en-US-Neural2-A (male), en-US-Neural2-J (male)
   language: en-US
 
 stt:

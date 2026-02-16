@@ -13,6 +13,15 @@ import os
 import sys
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+# Load API keys from .env files
+_env_path = Path(__file__).resolve().parent.parent.parent / ".env"
+load_dotenv(_env_path)
+_cos_env = Path("/Users/nl/projects/chief_of_staff/.env")
+if _cos_env.exists():
+    load_dotenv(_cos_env, override=False)
+
 import anthropic
 import yaml
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request

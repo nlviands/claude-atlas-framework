@@ -71,16 +71,38 @@ def resolve_contact(name_or_number: str) -> tuple[str, str, str]:
     return phone, key, context
 
 
+def _kill_stale_server(port: int):
+    """Kill any existing process on the server port."""
+    try:
+        result = subprocess.run(
+            ["lsof", "-ti", f":{port}"],
+            capture_output=True, text=True, timeout=5
+        )
+        if result.stdout.strip():
+            for pid in result.stdout.strip().split("\n"):
+                pid = pid.strip()
+                if pid:
+                    os.kill(int(pid), signal.SIGTERM)
+                    print(f"[call] Killed stale process on port {port} (PID: {pid})")
+            time.sleep(1)
+    except Exception:
+        pass
+
+
 def start_server(port: int, env_vars: dict) -> subprocess.Popen:
     """Start the FastAPI voice server as a subprocess."""
+    _kill_stale_server(port)
+
     env = os.environ.copy()
     env.update(env_vars)
 
     proc = subprocess.Popen(
-        [str(PYTHON), str(SERVER_SCRIPT)],
+        [str(PYTHON), "-u", str(SERVER_SCRIPT)],  # -u for unbuffered output
         env=env,
+        stdin=subprocess.DEVNULL,
         stdout=sys.stdout,
         stderr=sys.stderr,
+        start_new_session=True,  # Isolate from parent's signal group
     )
     print(f"[call] Server starting on port {port} (PID: {proc.pid})")
 
@@ -89,7 +111,12 @@ def start_server(port: int, env_vars: dict) -> subprocess.Popen:
         try:
             r = requests.get(f"http://localhost:{port}/docs", timeout=1)
             if r.status_code == 200:
-                print(f"[call] Server ready.")
+                # Verify server is still alive
+                exit_code = proc.poll()
+                if exit_code is not None:
+                    print(f"[call] Server died immediately (exit code: {exit_code})")
+                    sys.exit(1)
+                print(f"[call] Server ready (PID: {proc.pid} alive)")
                 return proc
         except requests.ConnectionError:
             pass
@@ -236,13 +263,34 @@ def main():
         }
         server_proc = start_server(port, env_vars)
 
-        # 3. Make the call
+        # 3. Verify everything is alive before calling
         twiml_url = f"https://{ngrok_domain}/twiml"
         print(f"[call] TwiML URL: {twiml_url}")
 
+        exit_code = server_proc.poll()
+        if exit_code is not None:
+            print(f"[call] ERROR: Server died before call (exit code: {exit_code})")
+            sys.exit(1)
+
+        # Test TwiML through ngrok
+        try:
+            r = requests.post(twiml_url, timeout=5)
+            if r.status_code == 200 and "<ConversationRelay" in r.text:
+                print(f"[call] TwiML endpoint verified through ngrok")
+            else:
+                print(f"[call] WARNING: TwiML endpoint returned unexpected response: {r.status_code}")
+        except Exception as e:
+            print(f"[call] WARNING: Could not verify TwiML through ngrok: {e}")
+
+        exit_code = server_proc.poll()
+        if exit_code is not None:
+            print(f"[call] ERROR: Server died after TwiML test (exit code: {exit_code})")
+            sys.exit(1)
+
         call_sid = make_call(phone, twiml_url)
 
-        # 4. Wait for call to end
+        # 4. Monitor call and server health
+        print(f"[call] Server PID {server_proc.pid} alive: {server_proc.poll() is None}")
         wait_for_call_end(call_sid)
 
     except Exception as e:
