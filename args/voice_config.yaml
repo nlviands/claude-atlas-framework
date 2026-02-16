@@ -3,7 +3,7 @@
 
 tts:
   provider: google
-  voice: en-US-Neural2-D   # Male, natural. Alternatives: en-US-Neural2-A (male), en-US-Neural2-J (male)
+  voice: en-US-Chirp3-HD-Puck   # Norm's pick. Alt males: Charon, Fenrir, Orus, Achird
   language: en-US
 
 stt:
