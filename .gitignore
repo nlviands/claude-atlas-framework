@@ -35,3 +35,23 @@ Thumbs.db
 
 # Logs (optional - uncomment if you want to track logs)
 # memory/logs/
+secrets.yaml
+tools/discord/.discord_token
+tools/discord/daily/
+tools/discord/*_export.json
+tools/discord/*.jpg
+
+# State files
+tools/memory/.last_*
+
+# Screenshots (binary bloat)
+screenshots/
+
+# LLM data
+tools/llm/data/*.db
+
+# Personal health docs
+docs/Health/
+
+# Discord state files
+tools/discord/.needs_analysis

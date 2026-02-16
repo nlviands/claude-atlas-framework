@@ -1,0 +1,45 @@
+esphome:
+  name: office-ble-proxy
+  friendly_name: "Office BLE Proxy"
+
+esp32:
+  board: esp32dev
+
+# WiFi - connects to your main network
+wifi:
+  ssid: "monembo"
+  password: !secret wifi_password
+
+  # Fallback AP in case WiFi connection fails
+  ap:
+    ssid: "Office-BLE-Proxy"
+    password: "fallback123"
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret api_key
+
+# Enable OTA updates (so you can update wirelessly later)
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+# Enable logging
+logger:
+  level: INFO
+
+# Bluetooth proxy - this is the key component
+# Forwards BLE advertisements to Home Assistant
+bluetooth_proxy:
+  active: true
+
+esp32_ble_tracker:
+  scan_parameters:
+    interval: 1100ms
+    window: 1100ms
+    active: true
+
+# Optional: web server for debugging (accessible at http://office-ble-proxy.local)
+web_server:
+  port: 80

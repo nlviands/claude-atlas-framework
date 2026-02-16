@@ -394,6 +394,21 @@ def ingest_transcripts(conn):
     return total
 
 
+def _extract_pdf_text(filepath: Path) -> str:
+    """Extract text from PDF using pdftotext."""
+    import subprocess
+    try:
+        result = subprocess.run(
+            ["pdftotext", "-layout", str(filepath), "-"],
+            capture_output=True, text=True, timeout=30
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return result.stdout.strip()
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        pass
+    return ""
+
+
 def ingest_reports(conn):
     """Ingest report markdown files from Chief's reports directory."""
     print("Ingesting reports...")
@@ -445,6 +460,89 @@ def ingest_reports(conn):
     return count
 
 
+def ingest_pdfs(conn, directory: Path = None):
+    """Ingest PDF files from finance-research directory (recursive)."""
+    print("Ingesting PDFs...")
+
+    if directory is None:
+        directory = Path("/Users/nl/projects/chief_of_staff/reports/finance-research")
+
+    if not directory.exists():
+        print(f"  Directory not found: {directory}")
+        return 0
+
+    # Find all PDFs and .md files recursively
+    files = sorted(directory.rglob("*.pdf")) + sorted(directory.rglob("*.md"))
+    if not files:
+        print("  No files found.")
+        return 0
+
+    import re
+    documents = []
+    skipped = 0
+    for f in files:
+        # Get relative path for categorization
+        rel_path = f.relative_to(directory)
+        category = rel_path.parts[0] if len(rel_path.parts) > 1 else "Uncategorized"
+
+        # Extract text
+        if f.suffix.lower() == '.pdf':
+            text = _extract_pdf_text(f)
+        else:
+            text = f.read_text()
+
+        if not text.strip() or len(text.strip()) < 50:
+            skipped += 1
+            continue
+
+        # Clean up filename for title
+        title = f.stem
+        # Remove common prefixes from web captures
+        title = re.sub(r'^screencapture-', '', title)
+        # Truncate very long filenames
+        if len(title) > 100:
+            title = title[:100]
+
+        # Extract date from filename if present
+        date_match = re.search(r'(\d{4}-\d{2}-\d{2})', f.name)
+        if not date_match:
+            # Try alternate date formats like 25.10.29
+            alt_match = re.search(r'(\d{2})\.(\d{2})\.(\d{2})', f.name)
+            if alt_match:
+                yy, mm, dd = alt_match.groups()
+                created_at = f"20{yy}-{mm}-{dd}"
+            else:
+                created_at = None
+        else:
+            created_at = date_match.group(1)
+
+        # Use relative path as unique source_id to avoid collisions
+        source_id_base = str(rel_path).replace('/', '_').replace(' ', '_')
+
+        # Chunk the text
+        chunks = _chunk_report(text, max_chars=1500)
+
+        for i, chunk in enumerate(chunks):
+            documents.append({
+                'source': 'report',
+                'source_id': f"fr_{source_id_base}_{i}",
+                'title': f"{title} (part {i+1})" if len(chunks) > 1 else title,
+                'content': chunk[:2000],
+                'metadata': {
+                    'file': f.name,
+                    'category': category,
+                    'path': str(rel_path),
+                    'part': i,
+                    'total_parts': len(chunks),
+                },
+                'created_at': created_at,
+            })
+
+    count = _insert_and_embed(conn, documents)
+    print(f"  PDFs: {count} new / {len(documents)} chunks from {len(files) - skipped} files ({skipped} skipped)")
+    return count
+
+
 def _chunk_report(text: str, max_chars: int = 1500) -> list[str]:
     """Split a report into chunks, preferring section breaks."""
     # Try splitting on markdown headers
@@ -488,6 +586,7 @@ def ingest_all(conn):
     total += ingest_lessons(conn)
     total += ingest_research(conn)
     total += ingest_reports(conn)
+    total += ingest_pdfs(conn)
     total += ingest_discord(conn)
     total += ingest_transcripts(conn)
     total += ingest_conversations(conn)
@@ -504,9 +603,9 @@ def main():
     parser = argparse.ArgumentParser(description="Knowledge Base Ingestion")
     parser.add_argument("source", nargs="?", default="all",
                         choices=["all", "memories", "trades", "lessons", "research",
-                                 "reports", "discord", "transcripts", "conversations"],
+                                 "reports", "pdfs", "discord", "transcripts", "conversations"],
                         help="Source to ingest (default: all)")
-    parser.add_argument("file", nargs="?", help="Specific file (for discord)")
+    parser.add_argument("file", nargs="?", help="Specific file (for discord) or directory (for pdfs)")
     args = parser.parse_args()
 
     conn = get_kb_conn()
@@ -523,6 +622,9 @@ def main():
         ingest_research(conn)
     elif args.source == "reports":
         ingest_reports(conn)
+    elif args.source == "pdfs":
+        directory = Path(args.file) if args.file else None
+        ingest_pdfs(conn, directory)
     elif args.source == "discord":
         filepath = Path(args.file) if args.file else None
         ingest_discord(conn, filepath)

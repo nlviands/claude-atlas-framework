@@ -1,90 +1,55 @@
-# Pipeline Definitions
-# Defines agent chains for different task types
-# Claude orchestrates and reviews all pipeline outputs
+# Pipeline Definitions — Simplified for Opus 4.6
+#
+# Old model: Chain multiple LLMs (Qwen → Gemini → Grok) for each task.
+# New model: Claude handles everything. External tools only for unique data.
+#
+# Claude IS the pipeline now. These definitions describe workflows,
+# not LLM routing. Claude reads these to know the steps.
 
-pipelines:
-  code_generation:
-    description: "Generate and review code"
-    stages:
-      - agent: qwen
-        role: draft
-        instruction: "Generate initial code implementation"
-      - agent: codex
-        role: review
-        instruction: "Review code for bugs, security issues, and improvements"
+workflows:
+  stock_research:
+    description: "Research a stock/asset — smart default report"
+    steps:
+      - tool: alpaca_mcp
+        action: "Pull current price, volume, history, news"
+      - tool: technical_indicators
+        action: "Calculate RSI, MACD, Bollinger Bands, MAs, support/resistance"
+      - tool: grok
+        action: "Social sentiment from X (optional — only if user asks or situation warrants)"
+      - role: claude
+        action: "Synthesize into concise report with levels, signals, and plain-English take"
+    notes: |
+      Give a smart default. Don't ask user which report type.
+      If they want more detail on something, they'll ask.
+      Report should include: price action, key levels, technicals summary, verdict.
 
-  code_review:
-    description: "Review existing code"
-    stages:
-      - agent: codex
-        role: review
-        instruction: "Analyze code quality, security, and suggest improvements"
-
-  investment_research:
-    description: "Research a company/asset for investment"
-    stages:
-      - agent: grok
-        role: sentiment
-        instruction: "Analyze social media sentiment and public perception"
-      - agent: qwen
-        role: data
-        instruction: "Gather and structure financial data"
-      - agent: gemini
-        role: synthesis
-        instruction: "Synthesize findings into cohesive investment report"
+  portfolio_review:
+    description: "Review current portfolio positions"
+    steps:
+      - tool: alpaca_mcp
+        action: "Pull all positions, P&L, account info"
+      - tool: technical_indicators
+        action: "Run indicators on each holding"
+      - role: claude
+        action: "Summarize portfolio health, flag concerns, highlight opportunities"
 
   trading_signal:
-    description: "Generate trading signal with analysis"
-    stages:
-      - agent: grok
-        role: sentiment
-        instruction: "Pulse check on social/news sentiment"
-      - agent: gemini
-        role: analysis
-        instruction: "Risk analysis and signal validation"
-      - agent: qwen
-        role: format
-        instruction: "Format signal for execution"
+    description: "Quick signal check on a symbol"
+    steps:
+      - tool: alpaca_mcp
+        action: "Latest price, volume, recent bars"
+      - tool: technical_indicators
+        action: "RSI, MACD, Bollinger position"
+      - role: claude
+        action: "Bull/bear/neutral with confidence level and key levels"
 
-  analysis:
-    description: "General analysis task"
-    stages:
-      - agent: qwen
-        role: draft
-        instruction: "Initial analysis and data gathering"
-      - agent: gemini
-        role: deep_analysis
-        instruction: "Deeper reasoning and insight extraction"
+# Grok is the only external LLM. Used when:
+# - User explicitly asks for social sentiment
+# - Researching a stock with heavy social media activity (meme stocks, etc.)
+# - Claude decides X sentiment would add value to the analysis
+grok_usage: on_demand
 
-  creative:
-    description: "Creative content generation"
-    stages:
-      - agent: grok
-        role: ideation
-        instruction: "Generate creative ideas and unconventional angles"
-      - agent: gemini
-        role: structure
-        instruction: "Structure and refine into coherent output"
-
-  quick_task:
-    description: "Simple tasks - local only, no handoff"
-    stages:
-      - agent: qwen
-        role: execute
-        instruction: "Complete the task directly"
-
-# Fallback chain when a model fails
-fallback_order:
-  - qwen      # Try local first (free)
-  - gemini    # Then Gemini
-  - codex     # Then Codex
-  - grok      # Finally Grok
-
-# Claude's review behavior
-review:
-  # Always review pipeline output before returning to user
-  always_review: true
-  # Can push back and request refinement
-  allow_pushback: true
-  # Max refinement iterations before escalating to user
-  max_iterations: 3
+# Claude's approach:
+# - Don't ask which report type — give the smart default
+# - User will ask for more if they need it (fundamentals, deeper TA, sentiment, etc.)
+# - Keep reports concise and actionable

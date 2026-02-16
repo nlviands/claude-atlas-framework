@@ -1,40 +1,25 @@
 # LLM Configuration
-# Model parameters and defaults for each agent
+# Simplified: Claude Opus 4.6 handles orchestration, synthesis, and reasoning.
+# External LLMs only used when they provide unique value (data sources Claude can't access).
 
 models:
-  codex:
-    provider: openai
-    model: gpt-4o
-    temperature: 0.3  # Lower for code accuracy
-    description: "Code generation and review specialist"
-
-  gemini:
-    provider: google
-    model: gemini-2.0-flash
-    temperature: 0.7
-    description: "Reasoning, synthesis, and report generation"
-
   grok:
     provider: xai
     model: grok-3
-    temperature: 0.8  # Higher for creative/sentiment tasks
-    description: "Social sentiment and contrarian analysis"
+    temperature: 0.8
+    description: "X/social sentiment — unique data source Claude can't access directly"
+    usage: optional  # Only when user wants social sentiment
 
-  qwen:
-    provider: local
-    model: default_model
-    base_url: http://localhost:8080/v1
-    temperature: 0.7
-    description: "Local workhorse for drafts and formatting"
+# Retired models (Opus 4.6 makes these redundant):
+# - codex (GPT-4o): Code gen/review — Claude does this natively
+# - gemini (Gemini 2.0 Flash): Synthesis/reasoning — Claude does this better with full context
+# - qwen (local MLX): Drafts/formatting — unnecessary overhead on laptop
 
-# Default model for quick tasks
-default_model: qwen
-
-# Cost optimization mode
-# conservative: prefer local/free when quality is acceptable
-# performance: use best model for task regardless of cost
-# balanced: mix based on task complexity
-cost_mode: conservative
+# Architecture:
+# Claude Opus 4.6 = orchestrator + synthesizer + reasoner
+# Grok = optional social sentiment (unique X data)
+# Alpaca MCP = live market data
+# tools/data/*.py = deterministic calculations (TA indicators, data aggregation)
 
 # Retry settings
 retry:

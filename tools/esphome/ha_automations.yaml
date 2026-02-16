@@ -1,0 +1,100 @@
+# ============================================================
+# Automation 1: Norm is Home / Away
+# Updates a status based on TrackR presence
+# ============================================================
+- id: norm_home_away
+  alias: "Norm - Home/Away Status"
+  description: "Track Norm's presence based on TrackR keys"
+  trigger:
+    - platform: state
+      entity_id: device_tracker.tkr_bermuda_tracker_2
+      to: "home"
+      id: arrived
+    - platform: state
+      entity_id: device_tracker.tkr_bermuda_tracker_2
+      to: "not_home"
+      for:
+        minutes: 5
+      id: left
+  action:
+    - choose:
+        - conditions:
+            - condition: trigger
+              id: arrived
+          sequence:
+            - service: notify.mobile_app_nls_15
+              data:
+                title: "Home"
+                message: "Welcome home, Norm."
+        - conditions:
+            - condition: trigger
+              id: left
+          sequence:
+            - service: light.turn_off
+              target:
+                entity_id: light.office_light
+            - service: notify.mobile_app_nls_15
+              data:
+                title: "Away"
+                message: "You've left home. Office lights turned off."
+
+# ============================================================
+# Automation 2: Keys Left Behind
+# Alert if phone leaves but TrackR stays
+# ============================================================
+- id: keys_left_behind
+  alias: "Alert - Keys Left Behind"
+  description: "Notify if phone leaves home but keys TrackR stays"
+  trigger:
+    - platform: state
+      entity_id: device_tracker.nls_15
+      to: "not_home"
+      for:
+        minutes: 2
+  condition:
+    - condition: state
+      entity_id: device_tracker.tkr_bermuda_tracker_2
+      state: "home"
+  action:
+    - service: notify.mobile_app_nls_15
+      data:
+        title: "Keys Left Behind!"
+        message: "You left home but your keys are still here."
+        data:
+          push:
+            sound: default
+            interruption-level: time-sensitive
+
+# ============================================================
+# Automation 3: Office Occupied - Lights
+# Distance-based: uses sensor.tkr_distance_2 (feet)
+# 20ft threshold — under 20ft = in office, over 20ft = left
+# ============================================================
+- id: office_occupied_lights_on
+  alias: "Office - Lights On When Occupied"
+  description: "Turn on office lights when TrackR is within 20 feet"
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.tkr_distance_2
+      below: 20
+  # Time condition — add back after testing:
+  # condition:
+  #   - condition: time
+  #     after: "07:00:00"
+  #     before: "23:00:00"
+  action:
+    - service: light.turn_on
+      target:
+        entity_id: light.office_light
+
+- id: office_occupied_lights_off
+  alias: "Office - Lights Off When Unoccupied"
+  description: "Turn off office lights when TrackR is beyond 20 feet"
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.tkr_distance_2
+      above: 20
+  action:
+    - service: light.turn_off
+      target:
+        entity_id: light.office_light

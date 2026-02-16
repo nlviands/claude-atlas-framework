@@ -34,9 +34,10 @@
 ## Technical Preferences
 
 - Uses UV for Python package management
-- Local Qwen via MLX on Apple Silicon
 - Prefers clean, production-ready code
-- Wants Claude to review other agents' work
+- Claude Opus 4.6 handles all synthesis/reasoning (no need for Gemini, Codex, Qwen)
+- Grok kept as optional for X/social sentiment (unique data source)
+- Subagents = multiple Opus 4.6 instances, not external LLMs
 
 ## Hardware
 
@@ -64,10 +65,11 @@
 - Hardware: UXG Max, U6 LR switch, U7 Pro Wall, U6 LR APs
 
 ### Claude Atlas Framework (Active)
-- Multi-agent LLM system (Codex, Gemini, Grok, Qwen)
-- Pipeline orchestration with handoffs
-- Market data integration (Alpaca)
-- Natural language investment research
+- Simplified: Claude Opus 4.6 = orchestrator + synthesizer + reasoner
+- Grok optional for X sentiment, all other external LLMs retired
+- Claude Code subagents for specialized workflows (market-researcher, etc.)
+- Market data via Alpaca MCP + deterministic TA tools
+- Natural language investment research — zero friction
 
 ### Trading
 - Full-time since July 2025
