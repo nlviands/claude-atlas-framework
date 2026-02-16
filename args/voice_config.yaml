@@ -1,0 +1,31 @@
+# Voice Configuration — Atlas Outbound Calling
+# Twilio ConversationRelay + Claude API + Google TTS/STT
+
+tts:
+  provider: google
+  voice: en-US-Studio-O    # Male, natural. Alternatives: en-US-Studio-Q (male deeper), en-US-Neural2-D
+  language: en-US
+
+stt:
+  provider: google
+  language: en-US
+
+claude:
+  model: claude-sonnet-4-5-20250929   # Sonnet for latency — Opus adds perceptible lag
+  max_tokens: 300                      # Keep voice responses short
+  temperature: 0.7
+
+call:
+  max_duration_minutes: 30
+  server_port: 8001
+  greeting_pause_ms: 500     # Pause before greeting to let connection settle
+
+system_prompt: |
+  You are Atlas, Norm's AI assistant. You are on a phone call.
+  Rules for voice conversation:
+  - Keep responses to 1-3 sentences unless asked for detail
+  - Spell out numbers ("twenty" not "20")
+  - No markdown, emojis, bullet points — speak naturally
+  - Be direct and friendly
+  - If you don't know something, say so briefly
+  - When the conversation is winding down, say goodbye naturally

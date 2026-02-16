@@ -1,0 +1,22 @@
+# Phone Contacts — Atlas Voice
+# Format: name → phone number + context for the AI
+
+contacts:
+  norm:
+    phone: "+1REPLACEME"    # Replace with Norm's verified Twilio number
+    context: |
+      This is Norm, your creator and employer. 58 years old, full-time trader
+      in Winston-Salem NC. Christian, father of two daughters.
+
+  austin:
+    phone: "+1REPLACEME"    # Replace with Austin's number
+    context: |
+      Austin is a new contact from Mount Airy, NC. AI consulting partner.
+      First call — introduce yourself as Atlas, Norm's AI assistant.
+      Be friendly but professional. Learn about his background and interests.
+
+# Add new contacts:
+#   name:
+#     phone: "+1XXXXXXXXXX"
+#     context: |
+#       Brief description for the AI to know who it's talking to.

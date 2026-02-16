@@ -108,4 +108,37 @@ $PYTHON tools/kb/kb_search.py "coolant leak" --mode keyword
 
 ---
 
+## Voice Tools (`tools/voice/`)
+
+| Tool | Description |
+|------|-------------|
+| `call.py` | Outbound call trigger — starts server, ngrok tunnel, initiates Twilio call |
+| `server.py` | FastAPI WebSocket server — bridges Twilio ConversationRelay ↔ Claude streaming |
+
+### Usage
+
+```bash
+PYTHON=/Users/nl/projects/chief_of_staff/.venv/bin/python
+
+# Call a contact by name (from args/contacts.yaml)
+$PYTHON tools/voice/call.py norm "Hey Norm, this is Atlas testing voice."
+
+# Call with custom greeting
+$PYTHON tools/voice/call.py austin "Hey Austin, this is Atlas, Norm's AI assistant."
+
+# Call a raw number
+$PYTHON tools/voice/call.py --to "+19105551234" --greeting "Hello!"
+```
+
+### Prerequisites
+- Twilio account with SID, Auth Token, and phone number in `.env`
+- `ngrok` installed (`brew install ngrok/ngrok/ngrok` + authtoken configured)
+- Recipient must be verified on Twilio trial account (or upgrade to paid)
+
+### Config
+- `args/voice_config.yaml` — TTS voice, STT provider, Claude model, max duration
+- `args/contacts.yaml` — Phone contacts with context for the AI
+
+---
+
 *Update this manifest when adding new tools or subagents.*
