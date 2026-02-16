@@ -3,7 +3,7 @@
 
 tts:
   provider: google
-  voice: en-US-Chirp3-HD-Puck   # Norm's pick. Alt males: Charon, Fenrir, Orus, Achird
+  voice: en-US-Chirp3-HD-Orus   # Norm's pick. Tested: Puck, Charon, Enceladus (invalid)
   language: en-US
 
 stt:
