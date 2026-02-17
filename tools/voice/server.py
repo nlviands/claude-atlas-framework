@@ -52,13 +52,19 @@ async def twiml_endpoint(request: Request):
     ws_url = f"wss://{NGROK_DOMAIN}/ws"
 
     tts_config = config.get("tts", {})
-    voice = tts_config.get("voice", "en-US-Studio-O")
+    voice = tts_config.get("voice", "UgBBYS2sOqTuMpoF3BR0")
     language = tts_config.get("language", "en-US")
-    tts_provider = tts_config.get("provider", "google")
+    tts_provider = tts_config.get("provider", "ElevenLabs")
+    text_norm = tts_config.get("text_normalization", "auto")
 
     stt_config = config.get("stt", {})
     stt_provider = stt_config.get("provider", "google")
     stt_language = stt_config.get("language", "en-US")
+
+    # Build optional attributes based on provider
+    extra_attrs = ""
+    if tts_provider == "ElevenLabs":
+        extra_attrs = f'\n            elevenlabsTextNormalization="{text_norm}"'
 
     twiml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <Response>
@@ -70,7 +76,7 @@ async def twiml_endpoint(request: Request):
             language="{language}"
             transcriptionProvider="{stt_provider}"
             speechModel="telephony"
-            welcomeGreeting="{CALL_GREETING}"
+            welcomeGreeting="{CALL_GREETING}"{extra_attrs}
         />
     </Connect>
 </Response>"""

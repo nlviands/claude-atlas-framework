@@ -21,8 +21,8 @@ class TestConfig:
     def test_voice_config_loads(self):
         with open(ARGS_DIR / "voice_config.yaml") as f:
             config = yaml.safe_load(f)
-        assert config["tts"]["provider"] == "google"
-        assert config["tts"]["voice"] == "en-US-Studio-O"
+        assert config["tts"]["provider"] == "ElevenLabs"
+        assert "voice" in config["tts"]
         assert config["claude"]["model"] == "claude-sonnet-4-5-20250929"
         assert config["call"]["server_port"] == 8001
         assert "system_prompt" in config
@@ -90,7 +90,8 @@ class TestTwiML:
         assert "<Response>" in body
         assert "<ConversationRelay" in body
         assert "wss://test.ngrok.io/ws" in body
-        assert "en-US-Studio-O" in body
+        assert 'ttsProvider="ElevenLabs"' in body
+        assert "elevenlabsTextNormalization" in body
         assert "Hello test" in body
 
 

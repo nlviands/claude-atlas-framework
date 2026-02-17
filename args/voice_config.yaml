@@ -1,9 +1,17 @@
 # Voice Configuration — Atlas Outbound Calling
-# Twilio ConversationRelay + Claude API + Google TTS/STT
+# Twilio ConversationRelay + Claude API + ElevenLabs TTS / Google STT
 
 tts:
-  provider: google
-  voice: en-US-Chirp3-HD-Orus   # Norm's pick. Tested: Puck, Charon, Enceladus (invalid)
+  provider: ElevenLabs
+  voice: UgBBYS2sOqTuMpoF3BR0    # ElevenLabs default voice. Test others below:
+  # voice: pNInz6obpgDQGcFmaJgB   # Adam — deep, clear male
+  # voice: TxGEqnHWrfWFTfGW9XjX   # Josh — deep, warm male
+  # voice: ErXwobaYiN019PkySvjV   # Antoni — young, well-spoken male
+  # voice: VR6AewLTigWG4xSOukaG   # Arnold — crisp male
+  # voice: NYC9WEgkq1u4jiqBseQ9   # Twilio demo voice
+  # Format: VOICE_ID or VOICE_ID-MODEL-SPEED_STABILITY_SIMILARITY
+  # Models: flash_v2_5 (default), turbo_v2_5 | Speed: 0.7-1.2 | Stability/Similarity: 0.0-1.0
+  text_normalization: auto         # on, auto, or off
   language: en-US
 
 stt:
