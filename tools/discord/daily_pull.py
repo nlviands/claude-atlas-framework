@@ -33,6 +33,7 @@ CHANNELS = {
     "1252960422961745961": "technical-analysis",
     "1255899141217845248": "cash-machine",
     "1252204874821664771": "general-chat",
+    "1271990088657666098": "risk-gauge-pure-vol-strat",
 }
 
 
