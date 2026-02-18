@@ -9,6 +9,8 @@ Usage:
     /Users/nl/projects/chief_of_staff/.venv/bin/python tools/kb/kb_search.py "Hans LITE" --source discord
     /Users/nl/projects/chief_of_staff/.venv/bin/python tools/kb/kb_search.py "coolant leak" --mode keyword
     /Users/nl/projects/chief_of_staff/.venv/bin/python tools/kb/kb_search.py "options strategy" --ticker TROW --limit 20
+    /Users/nl/projects/chief_of_staff/.venv/bin/python tools/kb/kb_search.py "trades" --since 2026-02-15
+    /Users/nl/projects/chief_of_staff/.venv/bin/python tools/kb/kb_search.py "BKNG" --since 2026-02-17 --until 2026-02-18
 """
 
 import argparse
@@ -18,7 +20,7 @@ import sys
 from kb_utils import get_kb_conn, embed_single, serialize_vec
 
 
-def vector_search(conn, query: str, limit: int = 10, source: str = None, ticker: str = None):
+def vector_search(conn, query: str, limit: int = 10, source: str = None, ticker: str = None, since: str = None, until: str = None):
     """Search by vector similarity."""
     query_vec = serialize_vec(embed_single(query))
 
@@ -49,6 +51,10 @@ def vector_search(conn, query: str, limit: int = 10, source: str = None, ticker:
         chunk_id, distance, content, src, title, metadata_str, created_at = row
         if source and src != source:
             continue
+        if since and (not created_at or created_at < since):
+            continue
+        if until and (not created_at or created_at > until):
+            continue
         if ticker:
             meta = json.loads(metadata_str) if metadata_str else {}
             if ticker.upper() not in (content.upper() + " " + json.dumps(meta).upper()):
@@ -69,7 +75,7 @@ def vector_search(conn, query: str, limit: int = 10, source: str = None, ticker:
     return results
 
 
-def keyword_search(conn, query: str, limit: int = 10, source: str = None, ticker: str = None):
+def keyword_search(conn, query: str, limit: int = 10, source: str = None, ticker: str = None, since: str = None, until: str = None):
     """Search by FTS5 keyword matching."""
     sql = """
         SELECT
@@ -101,6 +107,10 @@ def keyword_search(conn, query: str, limit: int = 10, source: str = None, ticker
         chunk_id, rank, content, src, title, metadata_str, created_at = row
         if source and src != source:
             continue
+        if since and (not created_at or created_at < since):
+            continue
+        if until and (not created_at or created_at > until):
+            continue
         if ticker:
             meta = json.loads(metadata_str) if metadata_str else {}
             if ticker.upper() not in (content.upper() + " " + json.dumps(meta).upper()):
@@ -121,10 +131,10 @@ def keyword_search(conn, query: str, limit: int = 10, source: str = None, ticker
     return results
 
 
-def hybrid_search(conn, query: str, limit: int = 10, source: str = None, ticker: str = None):
+def hybrid_search(conn, query: str, limit: int = 10, source: str = None, ticker: str = None, since: str = None, until: str = None):
     """Combined vector + keyword search with reciprocal rank fusion."""
-    vec_results = vector_search(conn, query, limit=limit * 2, source=source, ticker=ticker)
-    kw_results = keyword_search(conn, query, limit=limit * 2, source=source, ticker=ticker)
+    vec_results = vector_search(conn, query, limit=limit * 2, source=source, ticker=ticker, since=since, until=until)
+    kw_results = keyword_search(conn, query, limit=limit * 2, source=source, ticker=ticker, since=since, until=until)
 
     # Reciprocal rank fusion
     k = 60  # RRF constant
@@ -188,17 +198,19 @@ def main():
     parser.add_argument("--source", help="Filter by source (memory, discord, trade, etc.)")
     parser.add_argument("--ticker", help="Filter by ticker symbol")
     parser.add_argument("--limit", type=int, default=10, help="Max results")
+    parser.add_argument("--since", help="Only results after this date (YYYY-MM-DD)")
+    parser.add_argument("--until", help="Only results before this date (YYYY-MM-DD)")
     parser.add_argument("--verbose", "-v", action="store_true", help="Show metadata")
     args = parser.parse_args()
 
     conn = get_kb_conn()
 
     if args.mode == "hybrid":
-        results = hybrid_search(conn, args.query, args.limit, args.source, args.ticker)
+        results = hybrid_search(conn, args.query, args.limit, args.source, args.ticker, args.since, args.until)
     elif args.mode == "vector":
-        results = vector_search(conn, args.query, args.limit, args.source, args.ticker)
+        results = vector_search(conn, args.query, args.limit, args.source, args.ticker, args.since, args.until)
     elif args.mode == "keyword":
-        results = keyword_search(conn, args.query, args.limit, args.source, args.ticker)
+        results = keyword_search(conn, args.query, args.limit, args.source, args.ticker, args.since, args.until)
 
     format_results(results, args.verbose)
     conn.close()
