@@ -3,6 +3,18 @@
 > Quick reference for what was covered each day. Search transcripts with:
 > `Grep pattern="keyword" path="memory/transcripts/" glob="*.md"`
 
+## 2026-02-18 (Wednesday)
+**Topics:** CIFR thesis exit, macro synthesis, health insurance, Tim setup, scarcity research, DET time report fix
+- **Trades:** CIFR full close (-$535, thesis degraded), REGN call close (+$276), IREN puts close (+$126), RAL shares close (+$590). Net: +$457.
+- **Macro Thesis Synthesis:** Comprehensive report connecting Visser, Hans, policy. Three Treasury demand sources (SLR + stablecoins + AI agents). Hamiltonian American System pivot. Yen carry trade slow burn analysis.
+- **Health insurance DONE:** MEC+ Essentials enrolled for Thanh ($195/mo, March 1 start). MediShare completed.
+- **Tim Flinchum setup:** Chromebook plan for Thu evening. Checklist created. Flip galt-framework public temporarily for clone.
+- **DET Projects:** Fixed missing `/api/time/report` endpoint. Deployed.
+- **Research:** Chemicals (ENTG 9/10, CBT 8/10, BCPC 8/10) and Cement (VMC 9/10, EXP 8/10, USLM 7/10) scarcity reports generated.
+- **Cash goal:** $20K minimum. Currently $4,795 cash, $15,990 options BP. Not buying new positions.
+- **Key insight:** CIFR was on wrong side of scarcity/abundance — selling compute (abundance) vs. making physical things (scarcity). Applied Visser framework to exit.
+- **Norm corrections:** Systematic theology biweekly, BKNG=$300-400 continuation, should pull trading memories on "back to trading", already owned ETN.
+
 ## 2026-02-15 (Sunday)
 **Topics:** Galt Framework build, Visser video analysis, 22V Research subscription, portfolio dashboard
 - **Galt Framework built** — reusable Claude Code system template, pushed to GitHub (nlviands/galt-framework). Phase 1 complete: config-driven DB, KB, daemon, inbox processor, conversation logger, setup.py. 29 tests passing. 3 domain presets (general, real_estate, trading).
@@ -68,4 +80,4 @@ Use these to find specific analysis types across transcripts:
 - **Macro research:** Visser turbulence model analysis (2/15), covariance matrix risk (2/15)
 - **Subscriptions:** 22V Research $200/mo (2/15)
 
-*Updated: 2026-02-15*
+*Updated: 2026-02-18*
