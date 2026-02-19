@@ -99,6 +99,44 @@ $PYTHON tools/kb/kb_search.py "coolant leak" --mode keyword
 
 ---
 
+## Portfolio Tools (`tools/portfolio/`) — in chief_of_staff project
+
+| Tool | Description |
+|------|-------------|
+| `schwab_auth.py` | Schwab OAuth 2.0 auth — token management, browser login, auto-refresh |
+| `schwab_client.py` | Schwab API wrapper — positions, balances, quotes, option chains |
+| `update_prices.py` | Daily price updater — Schwab primary, yfinance fallback |
+| `valuation.py` | Position valuation logic — intrinsic value (yfinance fallback path) |
+| `parse_trading_md.py` | TRADING.md parser + Schwab reconciliation |
+| `migrate.py` | DB schema for portfolio tables (daily_prices, snapshots, position_values) |
+
+### Usage
+
+```bash
+PYTHON=/Users/nl/projects/chief_of_staff/.venv/bin/python
+
+# First-time Schwab setup (opens browser)
+$PYTHON tools/portfolio/schwab_auth.py --login
+
+# Check token status
+$PYTHON tools/portfolio/schwab_auth.py --status
+
+# Daily price update (auto-selects Schwab or yfinance)
+$PYTHON tools/portfolio/update_prices.py
+
+# Force Schwab-only or yfinance-only
+$PYTHON tools/portfolio/update_prices.py --schwab
+$PYTHON tools/portfolio/update_prices.py --yfinance
+
+# Test Schwab connection
+$PYTHON tools/portfolio/schwab_client.py --test
+
+# Get quotes
+$PYTHON tools/portfolio/schwab_client.py --quotes AAPL TROW TSLA
+```
+
+---
+
 ## Discord Tools (`tools/discord/`)
 
 | Tool | Description |
