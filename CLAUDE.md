@@ -54,6 +54,7 @@ $PYTHON tools/kb/kb_ingest.py all              # Re-ingest all sources
 - Read the full goal before starting — don't skim
 - **NEVER DELETE YOUTUBE VIDEOS** — irreversible. Direct user to YouTube Studio instead.
 - **Use port 8001 for dev servers** — port 8000 is reserved for another Claude instance.
+- **New tool/API = update CLAUDE.md + manifest.** When adding any tool, integration, or API — updating docs is part of "done", not a follow-up.
 
 *(Add new guardrails as mistakes happen. Keep under 15 items.)*
 
