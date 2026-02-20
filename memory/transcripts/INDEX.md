@@ -3,6 +3,22 @@
 > Quick reference for what was covered each day. Search transcripts with:
 > `Grep pattern="keyword" path="memory/transcripts/" glob="*.md"`
 
+## 2026-02-20 (Friday)
+**Topics:** SQQQ hedge trade, day trading lesson, browser chat build, bill management feature, Discord digest, GLW profit-taking, Rashad income trades, Schwab API lesson, CLAUDE.md updates, CF→Foundation timecard pipeline
+- **Trades:** BTO +2/-2 SQQQ 70/120C @ $7.13 (bull call spread). STO/BTC SNXX -100/+100 ($41.05/$41.44) = -$39 day trade loss. CMI added to watchlist.
+- **Market context:** GDP shock (Q4 missed expectations), VIX +3.7% to 20.98, gold >$5,050. Risk-off Friday. Rashad framed as "soft landing narrative hit."
+- **Browser chat:** Built WebSocket bridge piping browser chat to Claude CLI sessions. Worked but hit session conflicts — "Session ID already in use" errors. Iterated through multiple fixes. Cost indicator showing in bottom left.
+- **Dashboard — Bill Management:** Created `bill_payments` table, 3 new API endpoints (pay, history, update), BillModal.tsx shared component. Fixed paid bills disappearing (advance to next cycle + green "Paid" badge). Consolidated 3 duplicate due-date calculations into `_calc_next_due()` helper. Norm explicitly flagged the code smell.
+- **Discord digest:** Hans flagged put volume at 100th percentile (5-year max), XLF weakness, software dead money. Urikr: BNO Iran trade + IEF LEAPS. Nimble: silver short, Iran as "looming shock." Cabell: $175 silver by June (COMEX squeeze). Pragatik: WDC covered call.
+- **GLW profit-taking:** +50.8%, $2,329 gain on 50 shares ($91.71→$138.33). Presented 3 frameworks (house money, scale out, trail stop). Norm deferred — reminder set for Mon 2/24.
+- **Rashad's income trades logged (7):** SOFI CC, TQQQ strangle, AMZN put spread, TECL short put, METU short put, SOXL short put, HOOD ITM CC. $1,479 premium, ~$740 at 50% exit target. Logged to KB as memories #399-405.
+- **Schwab API lesson:** Atlas guessed from TRADING.md instead of querying Schwab for account balance. Norm corrected: "Atlas, come on, we have the Schwab API." Updated CLAUDE.md with "ACCOUNT QUESTIONS → SCHWAB API FIRST" rule. Also confused SOXL strike ($40) with share price ($66.50).
+- **CLAUDE.md updates:** Added Schwab API as primary tool in trading section, added guardrail for updating docs when adding tools, added plan mode reminder to check CLAUDE.md updates.
+- **CF→Foundation Timecard Pipeline (NEW PROJECT):** Analyzed CF weekly XLS (48 employees, HH:MM times). Foundation Mobile has 8 fields (Employee emp#, Job, Phase, Cost Code, Earn Code, Shift, Date, Time as decimal). Pipeline: parse→round down to quarter hour→map→flag anomalies→log everything→output Foundation-ready data. PCs currently enter manually — Julie says import would eliminate PC step. Need Foundation SQL access or manual mapping tables. Genie import tool exists but unconfigured. Sample processed output created (279 entries, 222 rounded, 76 flagged). DET 4x10 schedule Mon-Thu. Memory #406 saved.
+- **Reminders set:** Mon 2/24 GLW revisit (#56), Mon 2/24 schedule Julie timecard field walkthrough (#57).
+- **Health insurance confirmed:** Norm handled Becky Ottoman enrollment, paid, done.
+- **Key lesson:** When new tools are added, CLAUDE.md must be updated as part of "done."
+
 ## 2026-02-18 (Wednesday)
 **Topics:** CIFR thesis exit, macro synthesis, health insurance, Tim setup, scarcity research, DET time report fix
 - **Trades:** CIFR full close (-$535, thesis degraded), REGN call close (+$276), IREN puts close (+$126), RAL shares close (+$590). Net: +$457.
@@ -80,4 +96,9 @@ Use these to find specific analysis types across transcripts:
 - **Macro research:** Visser turbulence model analysis (2/15), covariance matrix risk (2/15)
 - **Subscriptions:** 22V Research $200/mo (2/15)
 
-*Updated: 2026-02-18*
+- **Income strategy tracking:** Rashad's 7 trades week of 2/17-2/20 (2/20), 50% profit exit rule
+- **DET Timecards:** CF→Foundation pipeline design + sample output (2/20)
+- **Tool discipline:** Schwab API lesson — always use right tool for context (2/20)
+- **Dashboard features:** Bill payment modal + payment history (2/20)
+
+*Updated: 2026-02-20*
