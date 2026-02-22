@@ -384,3 +384,35 @@
 - CF may or may not have an API — browser automation is the safe path
 - CF feature sections to replicate: Project Management, Financials, People, Documents, Settings
 - Start with Projects module, get to 80%, then expand
+
+---
+
+## Investment Research & Screening
+
+**Status:** Active (ongoing)
+**Started:** 2026-02-21
+**Goal:** Build systematic stock screening capability — find our own multibaggers and premium-selling candidates instead of relying solely on paid alerts.
+
+**Reference:** `context/scanner_playbook.md`
+
+**Tracks:**
+1. **Multibagger Scanner** — Finviz + Koyfin fundamentals. Small-cap, high FCF yield, insider ownership, cheap valuations. Based on Yartseva's 464 ten-bagger study.
+2. **Options Income Scanner** — TOS + Barchart. High IV Rank, liquid options, 0-45 DTE CSPs/CCs. Rashad-style.
+
+**Sources We Follow:**
+- Multibagger Ideas (Nico) — Substack, $400/yr. Serial acquirers, Canadian/international small-caps. Called DBOX +178%, GRID +176%.
+- 22V Research (Jordy Visser) — $200/mo. Turbulence model, scarcity/abundance framework.
+- Options with Hans — Discord, LEAPS focus.
+- MoneyTalk (Rashad) — 0-45 DTE income.
+- Heresy Financial (Joe Brown) — Breakout alerts.
+
+**Tasks:**
+- [x] Research screening criteria and tool capabilities (2026-02-21)
+- [x] Create scanner_playbook.md reference doc (2026-02-21)
+- [ ] Set up Finviz multibagger screen and save
+- [ ] Set up TOS Stock Hacker IV Rank scanner with thinkScript
+- [ ] Set up TOS Option Hacker CSP scanner
+- [ ] Set up Barchart auto-email screen for premium selling
+- [ ] Run first multibagger screen, review results together
+- [ ] Run first CSP screen, compare to Rashad's picks
+- [ ] Backtest: would screens have found GRID.TO, DBOX, or ACFN before they ran?
