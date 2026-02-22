@@ -137,6 +137,35 @@ $PYTHON tools/portfolio/schwab_client.py --quotes AAPL TROW TSLA
 
 ---
 
+## Trading Tools (`tools/trading/`)
+
+| Tool | Description |
+|------|-------------|
+| `watchlist_validator.py` | Checks TRADING.md watchlist statuses against actual positions. Flags entries marked "Position" that have no open position. `--fix` auto-corrects. |
+
+---
+
+## Web Tools (`tools/web/`)
+
+| Tool | Description |
+|------|-------------|
+| `fetch_markdown.py` | Fetch any URL as clean markdown. Tries Cloudflare Markdown for Agents (Accept: text/markdown) first, falls back to firecrawl CLI. 80% token reduction on CF-backed sites. |
+
+### Usage
+
+```bash
+# Fetch URL (CF first, firecrawl fallback)
+python tools/web/fetch_markdown.py <url>
+
+# Save to file
+python tools/web/fetch_markdown.py <url> -o /tmp/output.md
+
+# Force firecrawl (skip CF)
+python tools/web/fetch_markdown.py <url> --force-firecrawl
+```
+
+---
+
 ## Discord Tools (`tools/discord/`)
 
 | Tool | Description |
