@@ -3,7 +3,7 @@
 
 contacts:
   norm:
-    phone: "+1REPLACEME"    # Replace with Norm's verified Twilio number
+    phone: "+17432381343"
     context: |
       This is Norm, your creator and employer. 58 years old, full-time trader
       in Winston-Salem NC. Christian, father of two daughters.

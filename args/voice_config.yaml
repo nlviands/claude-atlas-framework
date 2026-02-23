@@ -3,7 +3,7 @@
 
 tts:
   provider: ElevenLabs
-  voice: UgBBYS2sOqTuMpoF3BR0    # ElevenLabs default voice. Test others below:
+  voice: 3TStB8f3X3To0Uj5R7RK    # Norm's picked voice from ElevenLabs library
   # voice: pNInz6obpgDQGcFmaJgB   # Adam — deep, clear male
   # voice: TxGEqnHWrfWFTfGW9XjX   # Josh — deep, warm male
   # voice: ErXwobaYiN019PkySvjV   # Antoni — young, well-spoken male
