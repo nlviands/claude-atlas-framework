@@ -416,3 +416,49 @@
 - [ ] Run first multibagger screen, review results together
 - [ ] Run first CSP screen, compare to Rashad's picks
 - [ ] Backtest: would screens have found GRID.TO, DBOX, or ACFN before they ran?
+
+---
+
+## WireMind — DET Local AI Assistant
+
+**Status:** Phase 1 Ready for Deployment
+**Started:** 2026-02-24
+**Location:** `/Users/nl/Documents/DET/wiremind/`
+**Goal:** Local AI assistant for DET. No data leaves the machine. ChatGPT-like interface for John.
+
+**Hardware:** AMD Ryzen 9 3900 XT, 64GB RAM, NVIDIA RTX 2080 Ti (11GB VRAM)
+**Stack:** Ollama + Open WebUI + llama3.1:8b
+
+**Phase 1 — Prove the Concept (This Week):**
+- [ ] Enable Remote Desktop on Windows PC
+- [ ] Install Ollama + pull llama3.1:8b model
+- [ ] Install Open WebUI (Docker preferred, pip fallback)
+- [ ] Configure firewall + network access + auto-start
+- [ ] Create admin account, test document upload + RAG
+- [ ] John accesses from his own machine — verify network access
+- [ ] Run verify.ps1 — all checks pass
+
+**Phase 2 — Foundation SQL Integration (Pending Credentials):**
+- [ ] Get read-only SQL credentials from Julie
+- [ ] Install pyodbc + ODBC Driver 17 on the PC
+- [ ] Import foundation_tool.py into Open WebUI as a Tool
+- [ ] Configure SQL connection settings in Open WebUI
+- [ ] Test: "List all tables" → verify Foundation access
+- [ ] Test: "What are our open receivables?" → verify query generation
+
+**Phase 3 — Enhanced Capabilities (After Hardware Upgrade):**
+- [ ] Bigger models (Llama 3.1 70B, Qwen 2.5 72B)
+- [ ] Vision/multimodal (field photo analysis)
+- [ ] Auto-ingestion pipeline from Foundation
+- [ ] Full NEC code ingestion
+
+**Deliverables (ready to deploy):**
+- `scripts/01_install_ollama.ps1` — Install Ollama + pull model
+- `scripts/02_install_openwebui.ps1` — Install Open WebUI (Docker or pip)
+- `scripts/03_configure.ps1` — Firewall, network, auto-start
+- `scripts/verify.ps1` — Verification checklist
+- `scripts/create_custom_model.ps1` — Create DET-customized model
+- `openwebui/foundation_tool.py` — Phase 2 Foundation SQL tool
+- `openwebui/modelfiles/wiremind.modelfile` — Custom Ollama model
+- `docs/SETUP_GUIDE.md` — Step-by-step deployment guide
+- `docs/TROUBLESHOOTING.md` — Common issues and fixes
