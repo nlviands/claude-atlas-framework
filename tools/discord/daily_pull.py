@@ -14,8 +14,9 @@ Output: tools/discord/daily/YYYY-MM-DD.json (combined)
 import json
 import sys
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 # Add parent for imports
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -118,6 +119,22 @@ def main():
         print(f"  #{name}: {len(messages)} new messages")
         time.sleep(0.5)
 
+    # Find earliest and latest message timestamps across all channels
+    all_timestamps = []
+    for msgs in combined.values():
+        for m in msgs:
+            if m.get("timestamp"):
+                all_timestamps.append(m["timestamp"])
+    all_timestamps.sort()
+
+    if all_timestamps:
+        et = ZoneInfo("America/New_York")
+        earliest = datetime.fromisoformat(all_timestamps[0]).astimezone(et).strftime("%b %d %-I:%M %p")
+        latest = datetime.fromisoformat(all_timestamps[-1]).astimezone(et).strftime("%b %d %-I:%M %p")
+        time_range = f" ({earliest} — {latest} ET)"
+    else:
+        time_range = ""
+
     with open(output_file, "w") as f:
         json.dump(combined, f, indent=2)
 
@@ -134,7 +151,7 @@ def main():
         ops_log = Path("/Users/nl/projects/chief_of_staff/logs/ops.log")
         ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         with open(ops_log, "a") as f:
-            f.write(f"[{ts}] [chief] [discord_pull] Pulled {total} new messages from {len(CHANNELS)} channels\n")
+            f.write(f"[{ts}] [chief] [discord_pull] Pulled {total} new messages{time_range} from {len(CHANNELS)} channels\n")
     except Exception:
         pass
 
@@ -144,7 +161,7 @@ def main():
         from action_processor import log_activity
         log_activity(
             "chief", "discord_pull",
-            f"Discord pull: {total} new messages from {len(CHANNELS)} channels",
+            f"Discord pull: {total} messages{time_range}",
             details=str(output_file),
         )
     except Exception:
