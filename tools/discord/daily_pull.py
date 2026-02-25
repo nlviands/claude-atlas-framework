@@ -138,6 +138,18 @@ def main():
     except Exception:
         pass
 
+    # Log to dashboard activity feed
+    try:
+        sys.path.insert(0, str(Path("/Users/nl/projects/chief_of_staff")))
+        from action_processor import log_activity
+        log_activity(
+            "chief", "discord_pull",
+            f"Discord pull: {total} new messages from {len(CHANNELS)} channels",
+            details=str(output_file),
+        )
+    except Exception:
+        pass
+
 
 if __name__ == "__main__":
     main()
