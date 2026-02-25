@@ -13,15 +13,11 @@ Usage (called by hooks, not directly):
 import json
 import sys
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 # Transcript output directory
 TRANSCRIPT_DIR = Path(__file__).resolve().parent.parent.parent / "memory" / "transcripts"
-
-# Slack poll tracking
-SLACK_POLL_FILE = Path(__file__).resolve().parent / ".last_slack_poll"
-SLACK_POLL_INTERVAL_MINUTES = 30
 
 
 def get_transcript_path():
@@ -99,40 +95,6 @@ def log_assistant_response(transcript_path):
         f.write(entry)
 
 
-LAST_PROMPT_FILE = Path(__file__).resolve().parent / ".last_prompt"
-
-
-def check_slack_poll_due():
-    """Check if Slack inbox poll is overdue and print reminder if so.
-
-    Suppressed during active sessions — if user sent a message < 30 min ago,
-    they're here and don't need Slack checked.
-    """
-    try:
-        # Track prompt timestamps to detect active sessions
-        now = datetime.now()
-        if LAST_PROMPT_FILE.exists():
-            last_prompt = datetime.fromisoformat(LAST_PROMPT_FILE.read_text().strip())
-            if (now - last_prompt) < timedelta(minutes=30):
-                # Active session — user is here, skip Slack check
-                LAST_PROMPT_FILE.write_text(now.isoformat())
-                return
-        # Update last prompt time (first prompt of session or after long gap)
-        LAST_PROMPT_FILE.write_text(now.isoformat())
-
-        if SLACK_POLL_FILE.exists():
-            last_poll = datetime.fromisoformat(SLACK_POLL_FILE.read_text().strip())
-            elapsed = now - last_poll
-            if elapsed < timedelta(minutes=SLACK_POLL_INTERVAL_MINUTES):
-                return  # Not due yet
-        # Either no file (never polled) or overdue
-        minutes_ago = "never"
-        if SLACK_POLL_FILE.exists():
-            minutes_ago = f"{int(elapsed.total_seconds() / 60)}m ago"
-        print(f"SLACK_POLL_DUE: Last poll: {minutes_ago}. Run mcp__slack__conversations_history on #sb-inbox now.")
-    except Exception:
-        pass  # Don't break the hook over this
-
 
 DISCORD_ANALYSIS_FLAG = Path(__file__).resolve().parent.parent / "discord" / ".needs_analysis"
 DISCORD_ANALYSIS_DONE = Path(__file__).resolve().parent / ".last_discord_analysis"
@@ -197,15 +159,6 @@ def check_ops_errors():
         pass
 
 
-def mark_slack_polled():
-    """Update the last poll timestamp. Call this after a successful Slack poll."""
-    try:
-        SLACK_POLL_FILE.parent.mkdir(parents=True, exist_ok=True)
-        SLACK_POLL_FILE.write_text(datetime.now().isoformat())
-        ops_log("atlas", "slack_poll", "Polled #sb-inbox")
-    except Exception:
-        pass
-
 
 def ops_log(source, category, message):
     """Write to the shared Atlas/Chief operations log."""
@@ -237,8 +190,6 @@ def main():
         prompt = data.get("prompt", "")
         if prompt:
             log_user_prompt(prompt)
-        # Check if Slack poll is overdue
-        check_slack_poll_due()
         # Check if Discord pull needs analysis
         check_discord_analysis()
         # Check ops.log for errors to surface
